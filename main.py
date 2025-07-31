@@ -2,21 +2,52 @@ import streamlit as st
 import random
 import json
 
-with open("questions.json", "r") as f:
-    questions = json.load(f)
-
 st.set_page_config(
     page_title="Millionaire Game",
     page_icon="🪙",
     layout="centered"
 )
 
+@st.cache_data
+def load_question():
+    with open("questions.json", "r") as f:
+        questions = json.load(f)
+        return questions
+
+questions = load_question()
+
+if "page" not in st.session_state:
+        st.session_state.page = "login"
+
+def login_page():
+    st.title("Welcome to KBC!!")
+    st.subheader("Enter your details to start:")
+
+    # taking input from the user
+    name = st.text_input("Your name")
+    age = st.number_input("Your age", min_value=5, max_value=99, step=1)
+
+    if "player_name" not in st.session_state:
+        st.session_state.player_name = ""
+    if "player_age" not in st.session_state:
+        st.session_state.player_age = 0
+
+    if st.button("CHALO SHURU KRTE HAI"):
+        if name.strip()=="" or age == 0:
+            st.warning("Please fill the details")
+        else:
+            st.session_state.player_name = name
+            st.session_state.player_age = age
+            st.session_state.page='game'
+
+
 @st.fragment
 def quiz_fragment():
-    st.title("Kaun Banega Carodpati")
+    st.title("KOI-NHI Banega Carodpati")
     st.caption("(Amitabch bachan ko toh Rekha ka pati bnna tha 😔)")
 
     # Init state
+    
     if "score" not in st.session_state:
         st.session_state.score = 0
     if "current_index" not in st.session_state:
@@ -75,4 +106,7 @@ def quiz_fragment():
         elif st.session_state.feedback_type == "error":
             st.error(st.session_state.feedback)
     
-quiz_fragment()
+if st.session_state.page == "login":
+    login_page()
+elif st.session_state.page == "game":
+    quiz_fragment()
