@@ -1,148 +1,78 @@
 import streamlit as st
 import random
+import json
+
+with open("questions.json", "r") as f:
+    questions = json.load(f)
 
 st.set_page_config(
-    page_title="Millionaire_Game",
+    page_title="Millionaire Game",
     page_icon="🪙",
     layout="centered"
 )
 
-questions = [
+@st.fragment
+def quiz_fragment():
+    st.title("Kaun Banega Carodpati")
+    st.caption("(Amitabch bachan ko toh Rekha ka pati bnna tha 😔)")
 
-    {
-        "question": "Which planet is known as the Red Planet?",
-        "options": ["Earth", "Venus", "Mars", "Jupiter"],
-        "answer_index": 2
-    },
-    {
-        "question": "Who wrote the play 'Romeo and Juliet'?",
-        "options": ["Charles Dickens", "William Shakespeare", "George Orwell", "Leo Tolstoy"],
-        "answer_index": 1
-    },
-    {
-        "question": "What is the chemical symbol for Gold?",
-        "options": ["Au", "Ag", "Pb", "Fe"],
-        "answer_index": 0
-    },
-    {
-        "question": "Which country hosted the 2016 Summer Olympics?",
-        "options": ["Brazil", "China", "UK", "Russia"],
-        "answer_index": 0
-    },
-    {
-        "question": "What is the capital of Canada?",
-        "options": ["Toronto", "Vancouver", "Ottawa", "Montreal"],
-        "answer_index": 2
-    },
-    {
-        "question": "Which language is the most widely spoken in the world?",
-        "options": ["English", "Mandarin Chinese", "Spanish", "Hindi"],
-        "answer_index": 1
-    },
-    {
-        "question": "What is the hardest natural substance on Earth?",
-        "options": ["Iron", "Diamond", "Quartz", "Obsidian"],
-        "answer_index": 1
-    },
-    {
-        "question": "In computing, what does CPU stand for?",
-        "options": ["Central Processing Unit", "Computer Power Unit", "Control Processing Utility", "Computer Performance Unit"],
-        "answer_index": 0
-    },
-    {
-        "question": "How many bones are there in the human body?",
-        "options": ["206", "201", "210", "196"],
-        "answer_index": 0
-    },
-    {
-        "question": "Who is the founder of SpaceX?",
-        "options": ["Steve Jobs", "Elon Musk", "Jeff Bezos", "Mark Zuckerberg"],
-        "answer_index": 1
-    },
-    {
-        "question": "Which country invented tea?",
-        "options": ["India", "China", "England", "Japan"],
-        "answer_index": 1
-    },
-    {
-        "question": "What gas do plants absorb from the atmosphere?",
-        "options": ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
-        "answer_index": 2
-    },
-    {
-        "question": "Which film won Best Picture at the 2020 Oscars?",
-        "options": ["Parasite", "Joker", "1917", "Ford v Ferrari"],
-        "answer_index": 0
-    },
-    {
-        "question": "What is the largest ocean on Earth?",
-        "options": ["Atlantic Ocean", "Indian Ocean", "Pacific Ocean", "Arctic Ocean"],
-        "answer_index": 2
-    },
-    {
-        "question": "Which element has the chemical symbol 'O'?",
-        "options": ["Osmium", "Oxygen", "Oganesson", "Oxide"],
-        "answer_index": 1
-    },
-    {
-        "question": "What is the capital city of Australia?",
-        "options": ["Sydney", "Melbourne", "Canberra", "Brisbane"],
-        "answer_index": 2
-    },
-    {
-        "question": "Which instrument has keys, pedals, and strings?",
-        "options": ["Violin", "Piano", "Flute", "Guitar"],
-        "answer_index": 1
-    },
-    {
-        "question": "Which part of the plant conducts photosynthesis?",
-        "options": ["Roots", "Stem", "Flowers", "Leaves"],
-        "answer_index": 3
-    },
-    {
-        "question": "What year did the Titanic sink?",
-        "options": ["1912", "1905", "1920", "1898"],
-        "answer_index": 0
-    },
-    {
-        "question": "Who painted the Mona Lisa?",
-        "options": ["Vincent van Gogh", "Leonardo da Vinci", "Michelangelo", "Pablo Picasso"],
-        "answer_index": 1
-    },
-    {
-        "question": "Which country gifted the Statue of Liberty to the USA?",
-        "options": ["Germany", "Canada", "France", "England"],
-        "answer_index": 2
-    },
-    {
-        "question": "Which gas is most abundant in Earth's atmosphere?",
-        "options": ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
-        "answer_index": 2
-    },
-    {
-        "question": "What’s the smallest prime number?",
-        "options": ["1", "2", "3", "0"],
-        "answer_index": 1
-    },
-    {
-        "question": "Which company developed the Windows operating system?",
-        "options": ["Apple", "Google", "Microsoft", "IBM"],
-        "answer_index": 2
-    },
-    {
-        "question": "How many players are there in a football (soccer) team?",
-        "options": ["9", "10", "11", "12"],
-        "answer_index": 2
-    }
-]
+    # Init state
+    if "score" not in st.session_state:
+        st.session_state.score = 0
+    if "current_index" not in st.session_state:
+        st.session_state.current_index = random.randint(0, len(questions) - 1)
+    if "answered" not in st.session_state:
+        st.session_state.answered = False
+    if "feedback" not in st.session_state:
+        st.session_state.feedback = ""
+    
+    # loading questions and options
+    current_question = questions[st.session_state.current_index]
+    question = current_question["question"]
+    options = current_question["options"]
+    correct = current_question["options"][current_question["answer_index"]]
 
-if "q_index" not in st.session_state:
-    st.session_state.q_index = 0
-if "score" not in st.session_state:
-    st.session_state.score = 0
+    # Score 
+    st.markdown(
+        f"<div style='text-align: right; font-size: 18px;'>💯 Score: {st.session_state.score}</div>",
+        unsafe_allow_html=True
+    )
 
-st.title("💸 Who Wants to Be a Millionaire")
-current_q = questions[st.session_state.q_index]
+    # Display question
+    st.markdown(f"<div style='font-size: 20px; font-weight: bold;'>Question : </div>", unsafe_allow_html=True)
+    st.code(question)
 
-# st.button("Start")
-# st.write(
+    # Options
+    selected_option = st.radio("Choose an option : ", options, key="selected_option")
+
+    # columns
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        if st.button("Submit Answer", use_container_width=True, disabled=st.session_state.answered):
+            if selected_option == correct:
+                st.session_state.score += 1
+                st.session_state.feedback = "🎉 Correct! You're one step closer to a million!"
+                st.session_state.feedback_type = "success"
+            else:
+                st.session_state.feedback = f"❌ Wrong! Correct answer: **{correct}**"
+                st.session_state.feedback_type = "error"
+            st.session_state.answered = True
+
+    with col2:
+        if st.button("➡️ Next question", use_container_width=True):
+            st.session_state.current_index = random.randint(0, len(questions) - 1)
+            current_question = questions[st.session_state.current_index]
+            st.session_state.answered = False
+            st.session_state.feedback = ""
+            st.session_state.feedback_type = ""
+            st.rerun()
+
+
+    # Display feedback in full width
+    if st.session_state.get("feedback"):
+        if st.session_state.feedback_type == "success":
+            st.success(st.session_state.feedback)
+        elif st.session_state.feedback_type == "error":
+            st.error(st.session_state.feedback)
+    
+quiz_fragment()
