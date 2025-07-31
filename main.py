@@ -20,7 +20,7 @@ if "page" not in st.session_state:
         st.session_state.page = "login"
 
 def login_page():
-    st.title("Welcome to KBC!!")
+    st.title("Welcome to 💸 KBC 💸!!")
     st.subheader("Enter your details to start:")
 
     # taking input from the user
